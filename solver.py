@@ -94,17 +94,18 @@ def selecting(lst):
             close += 1
             for j in range(5):
                 if j != i:
-                    positions[j][lst[i][0]] += 15000
+                    positions[j][lst[i][0]] += 20000
             positions[i][lst[i][0]] = -100000
         elif lst[i][1] == 'g':
             close += 3
             positions[i][lst[i][0]] += 100000
 
-    top_L(26)
     if close<14: 
+        top_L(18)
         top_W(True)
         ranking(True)
     else: 
+        top_L(26)
         top_W(False)
         ranking(False)
 
