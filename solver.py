@@ -34,18 +34,9 @@ vowels = ['a', 'e', 'i', 'o', 'u', 'y']
 top_letters = []
 words_with_top = []
 rank = {}
-close = 0
-
-def top5_L():
-    """
-    find top 5 most frequently occurring letters
-    """
-    global top_letters
-    top_letters.clear()
-    for i in range(5):
-        top_letters += list(alphabet.keys())[i]
+close = 0 #metric for how close we've gotten to guessing the word, based on how many green and yellow tiles guessed
     
-def list_restricted_L(num):
+def top_L(num):
     """
     find top num most frequently occurring letters
     """
@@ -58,7 +49,7 @@ def list_restricted_L(num):
 
 def top_W(no_repeats):
     """
-    find words with top 10 most common words, if no_repeats = True then require no repeating letters
+    find words with most common letters, if no_repeats = True then require no repeating letters
     """
     global words_with_top, close
     words_with_top.clear()
@@ -77,6 +68,7 @@ def top_W(no_repeats):
 def ranking(condition):
     """
     rank the most common words by how commonly their letters are in each position
+    given a condition (e.g. guesses early in the game) rank words with more vowels highers
     """
     global rank
     rank.clear()
@@ -91,7 +83,7 @@ def ranking(condition):
 
 def selecting(lst):
     """
-    restrict letter choice and position base on user input
+    restrict letter choice and position base on user input to generate next recommended word
     """
     global close
     for i in range(5):
@@ -108,8 +100,8 @@ def selecting(lst):
             close += 3
             positions[i][lst[i][0]] += 100000
 
-    list_restricted_L(20)
-    if close<10: 
+    top_L(26)
+    if close<14: 
         top_W(True)
         ranking(True)
     else: 
@@ -118,11 +110,11 @@ def selecting(lst):
 
 
 
-""" PROMPT USER """
+""" PROMPT USER, PLAY WORDLE """
 #Declaring variables
 tries = 0
 
-top5_L()
+top_L(5)
 top_W(True)
 ranking(True)
 
