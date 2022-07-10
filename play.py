@@ -1,0 +1,3 @@
+import solver
+
+solver.play()

@@ -1,36 +1,45 @@
 import string
 
 """ PROCESSING WORDS IN TXT FILE """
-alphabet = dict.fromkeys(string.ascii_lowercase, 0)
-positions = {}
-for i in range(5):
-    positions[i]=dict.fromkeys(string.ascii_lowercase, 0)
+def list_words(path):
+    ls = []
+    with open(path) as f:
+        ls = f.readlines()
+    return ls
 
-words = []
-with open('/Users/vivianyiruoliu/Desktop/Summer2022/wordle_solver/totalwords.txt') as f:
-    words = f.readlines()
+words = list_words('/Users/vivianyiruoliu/Desktop/Summer2022/wordle_solver/totalwords.txt')
 
 # for each letter count how many words in which it occurs
-for word in words:
-    for char in alphabet:
-        if char in word:
-            alphabet[char] += 1
+def count_letters(words):
+    alphabet = dict.fromkeys(string.ascii_lowercase, 0)
+    for word in words:
+        for char in alphabet:
+            if char in word:
+                alphabet[char] += 1
+    alphabet = dict(sorted(alphabet.items(), key=lambda item: item[1], reverse=True))
+    return alphabet
+
+alphabet = count_letters(words)
 
 #for each position count most common letter to appear
-for word in words:
+def count_positions(words):
+    positions = {}
     for i in range(5):
-        positions[i][word[i]] += 1
+        positions[i]=dict.fromkeys(string.ascii_lowercase, 0)
 
-for i in range(5):
-    positions[i]=dict(sorted(positions[i].items(), key=lambda item: item[1], reverse=True))
+    for word in words:
+        for i in range(5):
+            positions[i][word[i]] += 1
+
+    for i in range(5):
+        positions[i]=dict(sorted(positions[i].items(), key=lambda item: item[1], reverse=True))
+    return positions
+
+positions = count_positions(words)
     
-alphabet = dict(sorted(alphabet.items(), key=lambda item: item[1], reverse=True))
-
-
 
 """ WORD RECOMMENDATION FUNCTIONS """ 
 #Declaring variables
-vowels = ['a', 'e', 'i', 'o', 'u', 'y']
 top_letters = []
 words_with_top = []
 rank = {}
@@ -51,7 +60,7 @@ def top_W(no_repeats):
     """
     find words with most common letters, if no_repeats = True then require no repeating letters
     """
-    global words_with_top, close
+    global words_with_top
     words_with_top.clear()
     for word in words:
         count = 0
@@ -68,10 +77,11 @@ def top_W(no_repeats):
 def ranking(condition):
     """
     rank the most common words by how commonly their letters are in each position
-    given a condition (e.g. guesses early in the game) rank words with more vowels highers
+    if condition = true, ranks words with more vowels highers
     """
     global rank
     rank.clear()
+    vowels = ['a', 'e', 'i', 'o', 'u', 'y']
     for word in words_with_top:
         value = 0
         for i in range(5):
@@ -100,7 +110,7 @@ def selecting(lst):
             close += 3
             positions[i][lst[i][0]] += 100000
 
-    if close<14: 
+    if close<13: 
         top_L(18)
         top_W(True)
         ranking(True)
@@ -110,54 +120,50 @@ def selecting(lst):
         ranking(False)
 
 
-
 """ PROMPT USER, PLAY WORDLE """
-#Declaring variables
-tries = 0
-
-top_L(5)
-top_W(True)
-ranking(True)
-
 def convert(string):
     list=[]
     list[:0]=string
     return list
 
-while True:
-    test_word = input ("Recommended word: " + list(rank.keys())[0] + "Guess: " )
-
+def play(): 
+    global words
+    tries = 0
+    top_L(5)
+    top_W(True)
+    ranking(True)
     while True:
-        if (not type(test_word) is str) or len(test_word) != 5:
-            test_word = input("Please give a five letter word: ")
-        else: break
+        test_word = input ("Recommended word: " + list(rank.keys())[0] + "Guess: " )
 
-    test_word = test_word.lower()
+        while True:
+            if not test_word.isalpha() or len(test_word) != 5:
+                test_word = input("Please give a five letter word: ")
+            else: break
 
-    test_result = input ("How did you do? g-green, y-yellow w-white, e.g. wwgyw: ")
+        test_word = test_word.lower()
 
-    
-    while True:
-        not_valid = False
-        gyw = 'gyw'
-        for char in test_result: 
-            if char not in gyw:
-                not_valid = True
-                break
-        if (not type(test_result) is str) or len(test_result) != 5 or not_valid:
-            test_result = input("Please give valid results: ")
-        else: break
-    
-    test_result = test_result.lower()
+        test_result = input ("How did you do? g-green, y-yellow w-white, e.g. wwgyw: ")
 
-    tries += 1
+        
+        while True:
+            not_valid = False
+            gyw = 'gyw'
+            for char in test_result: 
+                if char not in gyw:
+                    not_valid = True
+                    break
+            if (not type(test_result) is str) or len(test_result) != 5 or not_valid:
+                test_result = input("Please give valid results: ")
+            else: break
+        
+        test_result = test_result.lower()
+        tries += 1
+        if test_result=="ggggg": 
+            print("Congratulations! You got it in " + str(tries) + " tries!")
+            break
 
-    ls1 = convert(test_word)
-    ls2 = convert(test_result)
-    guess_data = list(zip(ls1, ls2))
-    selecting(guess_data)
-
-
-    if test_result=="ggggg": 
-        print("Congratulations! You got it in " + str(tries) + " tries!")
-        break
+        # words.remove(test_word)
+        ls1 = convert(test_word)
+        ls2 = convert(test_result)
+        guess_data = list(zip(ls1, ls2))
+        selecting(guess_data)
