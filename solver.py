@@ -1,4 +1,5 @@
 import string
+import os
 
 """ PROCESSING WORDS IN TXT FILE """
 def list_words(path):
@@ -7,7 +8,7 @@ def list_words(path):
         ls = f.readlines()
     return ls
 
-words = list_words('/Users/vivianyiruoliu/Desktop/Summer2022/wordle_solver/totalwords.txt')
+words = list_words('os.getcwd()' + '/totalwords.txt')
 
 # for each letter count how many words in which it occurs
 def count_letters(words):
